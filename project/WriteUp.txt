@@ -1,0 +1,4 @@
+Rotations, Perspective View and functions, Camera Angles, Switch Case were were written and adjusted by Rafig Javadov and Huseyn Valiyev.
+drawSphere function and respective shader codes are written by Parviz Babazada and Elfag Mammadaliyev.
+
+Before, we have written our codes individually, then put together the aspects of all codes together. We have brainstormed ideas and debugged each others code.

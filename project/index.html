@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Load necessary WebGL utility scripts -->
+    <script src="../_common/webgl-utils.js"></script>
+    <script src="../_common/initShaders.js"></script>
+    <script src="../_common/MV.js"></script>
+    <script src="../_common/geometry.js"></script>
+    <script src="app.js"></script>
+    
+    <!-- Vertex Shader: Calculates vertex positions and colors -->
+    <script type="x-shader/x-vertex" id="vertex-shader">
+        attribute vec4 vPosition;
+        attribute vec4 vColor;
+        varying vec4 fColor;
+
+        uniform mat4 modelViewMatrix;
+        uniform mat4 projectionMatrix;
+
+        uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+        uniform vec4 lightPosition;
+        uniform float shininess;
+
+        void main() {
+            // Calculate the final position of the vertex in the clip space
+            gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+            // Pass the varying color to the fragment shader
+            fColor = vColor;
+        }
+    </script>
+
+    <!-- Fragment Shader: Calculates the color of each pixel -->
+    <script type="x-shader/x-fragment" id="fragment-shader">
+        precision mediump float;
+        varying vec4 fColor;
+
+        uniform vec4 ambientProduct;
+        uniform vec4 diffuseProduct;
+        uniform vec4 specularProduct;
+        uniform vec4 lightPosition;
+        uniform float shininess;
+
+        void main() {
+            // Calculate the surface normal (assuming facing forward)
+            vec3 N = normalize(vec3(0.0, 0.0, 1.0));
+            // Calculate the direction from the current pixel to the light source
+            vec3 L = normalize(vec3(lightPosition) - vec3(gl_FragCoord));
+            // Calculate the view direction (assuming camera at the origin)
+            vec3 V = normalize(-vec3(gl_FragCoord));
+
+            // Calculate ambient, diffuse, and specular lighting contributions
+            vec4 ambient = ambientProduct;
+            vec4 diffuse = max(dot(N, L), 0.0) * diffuseProduct;
+            vec3 H = normalize(L + V);
+            vec4 specular = pow(max(dot(N, H), 0.0), shininess) * specularProduct;
+
+            // Calculate the final color with lighting contributions
+            vec4 finalColor = fColor * (ambient + diffuse + specular);
+
+            // Set the pixel's color to the final calculated color
+            gl_FragColor = finalColor;
+        }
+    </script>
+    <!-- We have used this source to understand normalization: https://webglfundamentals.org/webgl/lessons/webgl-less-code-more-fun.html -->
+    <!-- We have used this source to understand normalization: https://www.cs.toronto.edu/~jacobson/phong-demo/ -->
+</head>
+
+<body>
+    <!-- Canvas element for rendering WebGL graphics -->
+    <canvas id="webgl-canvas" width="800" height="800"></canvas>
+    <style>
+        /* Style for the canvas background */
+        #webgl-canvas {
+            background-image: url('stars.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</body>
+</html>
